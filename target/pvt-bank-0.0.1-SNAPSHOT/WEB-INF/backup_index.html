@@ -1,0 +1,280 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="http://ui-grid.info/docs/grunt-scripts/csv.js"></script>
+  <script src="http://ui-grid.info/docs/grunt-scripts/pdfmake.js"></script>
+  <script src="http://ui-grid.info/docs/grunt-scripts/vfs_fonts.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular-touch.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular-animate.js"></script>
+  <script src="http://ui-grid.info/release/ui-grid.js"></script>
+  <link rel="stylesheet" href="http://ui-grid.info/release/ui-grid.css" type="text/css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+  
+  </head>
+<body ng-app="rlsmodal">
+<h1><center><strong>Test Bank</strong></center></h1>
+<div class="container-fluid">
+<div ng-controller="RlsCtrl" class="container" ng-init="release.releaseName='Select Release'">
+  <div class="dropdown">
+  <span>Release</span>
+  <button class="btn btn-default dropdown-toggle" type="button" id="rls_list" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" placeholder="Select Release">
+    {{ release.releaseName }}
+    <span class="caret"></span>
+  </button>
+  
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+    <li ng-repeat = "release in release_list"><a href="#" ng-click="showRelease(release)">{{ release.releaseName }}</a></li>
+  </ul>
+  <button ng-click="toggleModal()" class="btn btn-default">Edit</button>
+  <button ng-click="newRelease()" class="btn btn-default">+</button>
+  </div>
+    <modal title="Release form" visible="showModal">
+    <form role="form">
+      <div class="form-group">
+        <label for="rls_id">Release Id</label>
+        <input class="form-control" id="rls_id" ng-model="release.id" placeholder="0" disabled="disabled"></input>
+      </div>
+      <div class="form-group">
+        <label for="rls_name">Name</label>
+        <input type="text" id="rls_name" class="form-control" placeholder="Release Name" ng-model="release.releaseName" ></input>
+      </div>
+       <div class="form-group">
+        <label for="rls_desc">Description</label>
+        <textarea type="text" id="rls_desc" class="form-control" placeholder="Some Description..." ng-model="release.description"></textarea>
+      </div>
+      <button type="submit" class="btn btn-default" ng-click="createRelease(release)">Submit</button>
+      <button type="cancel" class="btn btn-default" ng-click="toggleModal()">Cancel</button>
+    </form>
+  </modal>
+  
+  <modal title="Clone Test Suite" visible="showCloneModal">
+    <form role="form">
+      <div class="form-group">
+        <label for="rls_id">Attach to Release</label>
+        <select name="releaseList" ng-modal="rls_list">
+        	<option ng-repeat="release in rls_list" value="{{release.releaseId}}">{{release.releaseName}}</option>
+        </select>
+        <input class="form-control" id="rls_id" ng-model="release.id" placeholder="0"></input>
+      </div>
+      <div class="form-group">
+        <label for="ts_id">From Test Suite ID</label>
+        <input class="form-control" id="ts_id" ng-model="release.id" placeholder="0"></input>
+      </div>
+      <div class="form-group">
+        <label for="ts_name">Test Suite Name</label>
+        <input type="text" id="ts_name" class="form-control" placeholder="Test Suite Name" ng-model="cloneTestSuiteName" ></input>
+      </div>
+       <div class="form-group">
+        <label for="rls_desc">Description</label>
+        <textarea type="text" id="rls_desc" class="form-control" placeholder="Some Description..." ng-model="release.description"></textarea>
+      </div>
+      <button type="submit" class="btn btn-default" ng-click="createRelease(release)">Submit</button>
+      <button type="cancel" class="btn btn-default" ng-click="toggleModal()">Cancel</button>
+    </form>
+  </modal>
+  
+  <div class="container" style="margin-top:15px">
+    <table class="table table-hover">
+      <tr>
+        <td>ID</td>
+        <td>Name</td>
+        <td>Test Cases Count</td>
+        <td>Pass/Fail</td>
+      </tr>
+      <tr ng-repeat = "ts in ts_list">
+        <td><a href="#" ng-click="showTestSuite(ts)">{{ ts.testSuiteId }}</a></td>
+        <td>{{ ts.name }}</td>
+        <td>{{ ts.testCaseList.length }}</td>
+        <td>0/0</td>
+      </tr>
+    </table>
+      <button type="submit" class="btn btn-default" ng-click="createTestSuite()">Create Test Suite</button>
+      <button type="submit" class="btn btn-default" ng-click="showCloneModal()">Clone Test Suite</button>
+    </div>
+  <div class="table-responsive" style="margin-top:15px">
+    <table class="table">
+      <tr>
+        <td>ID</td>
+        <td>Component</td>
+        <td>Description</td>
+        <td>Steps</td>
+        <td>Time Stamp</td>
+        <td>Executed By</td>
+        <td>Status</td>
+        <td>Result</td>
+      </tr>
+      <tr ng-repeat="testCase in ts.testCaseList">
+        <td><input type="text" class="form-control" ng-model="testCase.id" disabled="disabled"/></td>
+        <td><input type="text" class="form-control" ng-model="testCase.component" /></td>
+        <td><input type="text" class="form-control" ng-model="testCase.description"/></td>
+        <td><input type="text" class="form-control" ng-model="testCase.steps"/></td>
+        <td><input type="text" class="form-control" ng-model="testCase.timestamp"/></td>
+        <td><input type="text" class="form-control" ng-model="testCase.executedBy"/></td>
+        <td><div class="dropdown">
+				  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+				    {{ testCase.status }}
+				    <span class="caret"></span>
+				  </button>
+				  <ul class="dropdown-menu" aria-labelledby="tcSdropdownMenu1">
+				    <li ng-repeat = "tcStatusItem in tcStatusList"><a href="#" ng-click="changeTCStatus(testCase, tcStatusItem)">{{ tcStatusItem }}</a></li>
+				  </ul>
+				  </div>
+  		</td>
+        <td><div class="dropdown">
+				  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+				    {{ testCase.result }}
+				    <span class="caret"></span>
+				  </button>
+				  <ul class="dropdown-menu" aria-labelledby="tcRdropdownMenu1">
+				    <li ng-repeat = "tcResultItem in tcResultList"><a href="#" ng-click="changeTCResult(testCase, tcResultItem)">{{ tcResultItem }}</a></li>
+				  </ul>
+				  </div>
+  		</td>
+      </tr>
+    </table>
+      <button type="submit" class="btn btn-default" ng-click="createTestCases(testCaseList)">Submit</button>
+      <button type="cancel" class="btn btn-default" ng-click="toggleTCModal()">Cancel</button>
+    </div>
+  </div>
+
+</div>
+<script>
+var mymodal = angular.module('rlsmodal', ['ngTouch', 'ui.grid', 'ui.grid.edit', 'ui.grid.rowEdit', 'ui.grid.cellNav']);
+
+mymodal.controller('RlsCtrl', function ($scope,$http,filterFilter) {
+    $scope.showModal = false;
+    $scope.showTCModal = false;
+    $scope.gridOptions = {};
+    $scope.tcResultList = ["PASS", "FAIL","INCOMPLETE"];
+    $scope.tcStatusList = ["COMPLETE", "UNKNOWN", "OPEN"];
+    $scope.toggleModal = function(){
+        $scope.showModal = !$scope.showModal;
+    };
+    $scope.toggleTCModal = function(){
+        $scope.showTCModal = !$scope.showTCModal;
+    };
+    
+    var url = "service/Release";
+    $http.get(url).success( function(response) {
+        $scope.release_list = response;
+     });
+    
+    $scope.createRelease = function(release){
+      var createRlsURL = "service/CreateRelease";
+      $http.post(createRlsURL, release).success(function() {
+          console.log("Success : Release Created");
+          $scope.showModal = false});
+        
+      var url = "service/Release";
+        $http.get(url).success( function(response) {
+            $scope.release_list = response;
+            
+         });
+        $scope.reloadPage = function(){window.location.reload();$scope.release = release;}
+    };
+    
+    $scope.showRelease = function(release) {
+      $scope.release = release;
+      console.log("Loading "+release.id);
+      
+      var tsURL = "service/TestSuite/release/"+release.id;
+      $http.get(tsURL).success( function(response) {
+        console.log("TS URL output : "+response.length);
+            $scope.ts_list = response;
+            $scope.reloadPage = function(){window.location.reload();$scope.release = release;}
+         });
+    };
+    
+    $scope.newRelease = function() {
+      $scope.release = null;
+      $scope.showModal = true;
+    };
+    
+    $scope.createTestCases = function(testCaseList) {
+      
+    };
+    
+    $scope.createTestSuite = function(testSuite) {
+    	var createTestSuiteURL = "/TestSuite";
+    	testSuite.releaseId = $scope.releaseId;
+    	$http.post(createTestSuiteURL, testSuite).success(function() {
+            console.log("Success : New Test Suite Created");
+            });
+    }
+    
+    $scope.cloneTestSuite = function(releaseId, testSuiteId, testSuiteName) {
+    	console.log("releaseId : "+releaseId+";testSuiteId : "+testSuiteId+";testSuiteName : "+testSuiteName);
+    	var cloneTSURL = "/TestSuite/fromTS/"+testSuiteId+"/release/"+releaseId+"/name/"+testSuiteName;
+    	$http.post(cloneTSURL).success(function() {
+            console.log("Success : New Test Suite Created");
+            });
+    }
+    
+    $scope.showTestSuite = function(ts) {
+      $scope.ts = ts;
+      $scope.showTCModal = true;
+      console.log("Test Suited loaded : "+ts.testSuiteId);
+      $scope.gridOptions = {enableSorting: true, data: ts.testCaseList};
+    };
+    
+    $scope.changeTCResult = function(testCase, tcResultItem) {
+    	testCase.result = tcResultItem;
+    }
+    
+    $scope.changeTSResult = function(testCase, tcStatusItem) {
+    	testCase.status = tcStatusItem;
+    }
+    
+    
+  });
+
+mymodal.directive('modal', function () {
+    return {
+      template: '<div class="modal fade">' + 
+          '<div class="modal-dialog">' + 
+            '<div class="modal-content">' + 
+              '<div class="modal-header">' + 
+                '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' + 
+                '<h4 class="modal-title">{{ title }}</h4>' + 
+              '</div>' + 
+              '<div class="modal-body" ng-transclude></div>' + 
+            '</div>' + 
+          '</div>' + 
+        '</div>',
+      restrict: 'E',
+      transclude: true,
+      replace:true,
+      scope:true,
+      link: function postLink(scope, element, attrs) {
+        scope.title = attrs.title;
+
+        scope.$watch(attrs.visible, function(value){
+          if(value == true)
+            $(element).modal('show');
+          else
+            $(element).modal('hide');
+        });
+
+        $(element).on('shown.bs.modal', function(){
+          scope.$apply(function(){
+            scope.$parent[attrs.visible] = true;
+          });
+        });
+
+        $(element).on('hidden.bs.modal', function(){
+          scope.$apply(function(){
+            scope.$parent[attrs.visible] = false;
+          });
+        });
+      }
+    };
+  });
+  
+</script>
+</body>
+</html>

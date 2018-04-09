@@ -1,0 +1,14 @@
+com\att\testbank\model\Release.class
+com\att\testbank\model\TestCase.class
+com\att\testbank\service\TestSuiteServiceHandler.class
+com\att\testbank\entity\TestSuiteEntity.class
+com\att\testbank\entity\ReleaseEntity.class
+com\att\testbank\service\ReleaseServiceHandler.class
+com\att\testbank\repository\TestCaseRepository.class
+com\att\testbank\ui\TestBankUIController.class
+com\att\testbank\repository\ReleaseRepository.class
+com\att\testbank\repository\TestSuiteRepository.class
+com\att\testbank\model\TestSuite.class
+com\att\testbank\pvt\transform\BeanTransformer.class
+com\att\testbank\entity\TestCaseEntity.class
+com\att\testbank\resource\TestBankResource.class
